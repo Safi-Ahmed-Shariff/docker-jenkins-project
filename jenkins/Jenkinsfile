@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    sh 'docker-compose build'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                sh 'docker-compose down'
+            }
+        }
+    }
+}

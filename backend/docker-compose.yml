@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5000"  # Exposing backend 
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8082:80"  # Exposing frontend 
+    depends_on:
+      - backend  # Ensures the frontend waits for the backend to be ready

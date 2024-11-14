@@ -1,3 +1,11 @@
 Flask
 Flask_SQLAlchemy
 psycopg2-binary
+Flask-Testing
+pytest
+pytest-flask
+pytest-env
+python-dotenv
+Werkzeug
+Flask-Migrate
+Flask-Script

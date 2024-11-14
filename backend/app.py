@@ -7,11 +7,16 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}/{os.getenv('POSTGRES_DB')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable tracking modifications for performance
+# Check the environment to set the database URI
+if os.getenv("FLASK_ENV") == "testing":
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_TEST_USER')}:{os.getenv('POSTGRES_TEST_PASSWORD')}@{os.getenv('POSTGRES_TEST_HOST')}/{os.getenv('POSTGRES_TEST_DB')}"
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}/{os.getenv('POSTGRES_DB')}"
 
-# Secret key for session
+# Disable modification tracking
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Secret key for session management
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Initialize the database
@@ -25,7 +30,7 @@ class User(db.Model):
 
 # Automatically create tables
 with app.app_context():
-    db.create_all()  # This will create all tables defined by models, such as 'User'
+    db.create_all()  # This creates tables if they don't already exist
 
 @app.route('/login', methods=['POST'])
 def login():

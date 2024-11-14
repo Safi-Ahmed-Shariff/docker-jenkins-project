@@ -2,11 +2,13 @@ import pytest
 from app import app, db, User
 from flask import url_for
 
+# Setup a fixture for the Flask test client
 @pytest.fixture
 def client():
-    # Set up the app for testing
+    # Set up the app for testing with test-specific configurations
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use in-memory test database
+    # Use in-memory SQLite for testing or use PostgreSQL (if required)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use an in-memory database for simplicity
     with app.test_client() as client:
         with app.app_context():
             db.create_all()  # Create tables for testing
@@ -15,8 +17,9 @@ def client():
             db.session.add(test_user)
             db.session.commit()
         yield client
+        # Cleanup after tests
         with app.app_context():
-            db.drop_all()  # Clean up after tests
+            db.drop_all()  # Drop all tables after the test
 
 def test_register_new_user(client):
     new_user_data = {'username': 'newuser', 'password': 'newpassword'}

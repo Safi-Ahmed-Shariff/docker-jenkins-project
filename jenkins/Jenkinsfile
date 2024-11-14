@@ -55,7 +55,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker login -u $safishariff -p $Safi@docker123'
+                    sh 'docker login -u safishariff -p Safi@docker123'
                     sh 'docker tag docker-jenkins-project-backend safishariff/docker-jenkins-project-backend:latest'
                     sh 'docker tag docker-jenkins-project-frontendsafishariff/docker-jenkins-project-frontend:latest'
                     sh 'docker-compose push'

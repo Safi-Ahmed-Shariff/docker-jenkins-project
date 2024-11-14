@@ -2,14 +2,52 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        DOCKER_IMAGE_BACKEND = "docker-jenkins-project-backend"
+        DOCKER_IMAGE_FRONTEND = "docker-jenkins-project-frontend"
+        DOCKER_IMAGE_DB = "postgres:13"
+        POSTGRES_USER = 'postgres'
+        POSTGRES_PASSWORD = 'safi123'
+        POSTGRES_DB = 'safi_shariff_db'
+        FLASK_ENV = 'development'
+        SECRET_KEY = 'cddae684c792dde2151cd4c4c7bd8a28324917339720075e'
     }
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/Safi-Ahmed-Shariff/docker-jenkins-project.git'
+            }
+        }
+
+        stage('Build Backend Docker Image') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    sh 'docker-compose build backend'
+                }
+            }
+        }
+
+        stage('Build Frontend Docker Image') {
+            steps {
+                script {
+                    sh 'docker-compose build frontend'
+                }
+            }
+        }
+
+        stage('Start Containers') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    def backendContainerName = sh(script: 'docker-compose ps -q backend', returnStdout: true).trim()
+                    sh "docker exec -t ${backendContainerName} pytest /app/test_app.py"
                 }
             }
         }
@@ -17,7 +55,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
+                    sh 'docker login -u safishariff -p Safi@docker123'
+                    sh 'docker tag docker-jenkins-project-backend safishariff/docker-jenkins-project-backend:latest'
+                    sh 'docker tag docker-jenkins-project-frontendsafishariff/docker-jenkins-project-frontend:latest'
+                    sh 'docker-compose push'
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    sh 'docker-compose down'
                 }
             }
         }
@@ -25,9 +74,7 @@ pipeline {
 
     post {
         always {
-            script {
-                sh 'docker-compose down'
-            }
+            echo "Cleaning up resources"
         }
     }
 }

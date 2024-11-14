@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
@@ -7,20 +7,25 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Use a different database URI if running in a test environment
-if os.getenv("FLASK_ENV") == "testing":
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_TEST_USER')}:{os.getenv('POSTGRES_TEST_PASSWORD')}@{os.getenv('POSTGRES_TEST_HOST')}/{os.getenv('POSTGRES_TEST_DB')}"
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}/{os.getenv('POSTGRES_DB')}"
+# Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}/{os.getenv('POSTGRES_DB')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable tracking modifications for performance
 
+# Secret key for session
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize the database
 db = SQLAlchemy(app)
 
+# User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+
+# Automatically create tables
+with app.app_context():
+    db.create_all()  # This will create all tables defined by models, such as 'User'
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -32,6 +37,5 @@ def login():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
-# Only run the app if this file is executed directly
 if __name__ == "__main__":
     app.run(host="0.0.0.0")

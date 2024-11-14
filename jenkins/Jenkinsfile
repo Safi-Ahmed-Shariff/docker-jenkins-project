@@ -2,14 +2,60 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        DOCKER_IMAGE_BACKEND = "docker-jenkins-project-backend"
+        DOCKER_IMAGE_FRONTEND = "docker-jenkins-project-frontend"
+        DOCKER_IMAGE_DB = "docker-jenkins-project-db"
     }
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from your GitHub repository
+                git 'https://github.com/Safi-Ahmed-Shariff/docker-jenkins-project.git'
+            }
+        }
+
+        stage('Build Backend Docker Image') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    // Build the backend Docker image
+                    sh 'docker-compose build backend'
+                }
+            }
+        }
+
+        stage('Build Frontend Docker Image') {
+            steps {
+                script {
+                    // Build the frontend Docker image
+                    sh 'docker-compose build frontend'
+                }
+            }
+        }
+
+        stage('Build Database Docker Image') {
+            steps {
+                script {
+                    // Build the database Docker image (if necessary)
+                    sh 'docker-compose build db'
+                }
+            }
+        }
+
+        stage('Start Containers') {
+            steps {
+                script {
+                    // Start the containers
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    // Run tests inside the backend container (if any)
+                    sh 'docker exec -t docker-jenkins-project-backend-1 pytest'
                 }
             }
         }
@@ -17,7 +63,17 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
+                    // Add deployment steps here if needed (e.g., push to Docker Hub)
+                    sh 'docker-compose push'
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    // Optionally, you can stop and remove the containers after the build
+                    sh 'docker-compose down'
                 }
             }
         }
@@ -25,9 +81,8 @@ pipeline {
 
     post {
         always {
-            script {
-                sh 'docker-compose down'
-            }
+            // Always run this step after the pipeline finishes (whether success or failure)
+            echo "Cleaning up resources"
         }
     }
 }

@@ -8,7 +8,7 @@ pipeline {
         POSTGRES_USER = 'postgres'
         POSTGRES_PASSWORD = 'safi123'
         POSTGRES_DB = 'safi_shariff_db'
-        FLASK_ENV = 'development'
+        FLASK_ENV = 'testing'
         SECRET_KEY = 'cddae684c792dde2151cd4c4c7bd8a28324917339720075e'
     }
 

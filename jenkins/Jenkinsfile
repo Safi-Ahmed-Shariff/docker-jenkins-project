@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_BACKEND = "docker-jenkins-project-backend"
         DOCKER_IMAGE_FRONTEND = "docker-jenkins-project-frontend"
-        DOCKER_IMAGE_DB = "postgres:17"
+        DOCKER_IMAGE_DB = "postgres:13"
         POSTGRES_USER = 'postgres'
         POSTGRES_PASSWORD = 'safi123'
         POSTGRES_DB = 'safi_shariff_db'

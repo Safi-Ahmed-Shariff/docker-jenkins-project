@@ -5,6 +5,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: safi123 
       POSTGRES_DB: safi_shariff_db
+      POSTGRES_PORT: localhost:5432
     volumes:
       - db_data:/var/lib/postgresql/data
 
